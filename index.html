@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScamLens — Is this message a scam?</title>
+    <meta
+      name="description"
+      content="ScamLens checks suspicious messages with hybrid AI: on-device Gemini Nano first, then cloud Gemini. Built with Firebase AI Logic."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Scam<span>Lens</span></h1>
+        <p>
+          Paste a suspicious message and check it twice: once on your device
+          with Gemini Nano, once in the cloud with Gemini. All inference runs
+          through Firebase AI Logic.
+        </p>
+      </header>
+
+      <div id="setup-banner" class="banner" role="alert">
+        <strong>Firebase is not configured yet.</strong>
+        Fill in <code>src/firebase-config.js</code> with the web config from
+        your Firebase project (Firebase console &gt; Project settings &gt;
+        Your apps &gt; Web app). Checks are disabled until then.
+      </div>
+
+      <section class="card">
+        <label for="message">Suspicious message</label>
+        <textarea
+          id="message"
+          placeholder="Paste a WhatsApp, Telegram, job offer, or airdrop message here…"
+        ></textarea>
+
+        <div class="samples">
+          <p>Try an example:</p>
+          <div id="sample-buttons" class="sample-buttons"></div>
+        </div>
+
+        <div class="actions">
+          <button id="check-btn" type="button" class="primary">
+            Check this message
+          </button>
+          <p class="hint">
+            Step 1 runs on-device (nothing leaves your browser). Step 2 runs
+            in the cloud.
+          </p>
+        </div>
+
+        <div id="setup-notice" class="notice" hidden>
+          Firebase is not configured yet, so no check can run. Fill in
+          <code>src/firebase-config.js</code> with your Firebase web config
+          first.
+        </div>
+      </section>
+
+      <section id="result-device" class="card result" aria-live="polite">
+        <div class="result-head">
+          <h3>On-device · Gemini Nano</h3>
+          <span class="status">idle</span>
+        </div>
+        <p class="verdict"></p>
+        <p class="confidence"></p>
+        <p class="progress"></p>
+        <ul></ul>
+        <div class="extra"></div>
+        <p class="error"></p>
+      </section>
+
+      <section id="result-cloud" class="card result" aria-live="polite">
+        <div class="result-head">
+          <h3>Cloud · Gemini (<span id="cloud-model-name"></span>)</h3>
+          <span class="status">idle</span>
+        </div>
+        <p class="verdict"></p>
+        <p class="confidence"></p>
+        <p class="progress"></p>
+        <ul></ul>
+        <div class="extra"></div>
+        <p class="error"></p>
+      </section>
+
+      <section class="card">
+        <div class="history-head">
+          <h2>Check history</h2>
+          <button id="clear-history-btn" type="button" class="danger">
+            Clear history
+          </button>
+        </div>
+        <p id="history-empty" class="empty">
+          No checks yet. Your history is stored only in this browser
+          (localStorage).
+        </p>
+        <ul id="history-list" class="history-list"></ul>
+      </section>
+
+      <footer>
+        <p>
+          Hybrid inference: on-device Gemini Nano + cloud Gemini, via Firebase
+          AI Logic (Gemini Developer API, free tier).
+        </p>
+        <p>
+          Results are AI guesses, not guarantees. When in doubt, verify
+          through an official channel and never send money or codes.
+        </p>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -165,7 +165,7 @@ The app is deployed to **GitHub Pages** from this same repository. `vite.config.
 
 Live site: https://apiznk.github.io/scam-lens/
 
-To deploy: push to the repository and let the GitHub Pages workflow (or manual `dist/` publish) serve the static build.
+To deploy: run `npm run build`, then publish the contents of `dist/` to the `gh-pages` branch (a separate branch holding only the build output, plus an empty `.nojekyll` file). GitHub Pages serves that branch at the URL above. The `main` branch holds the source only; `dist/` is git-ignored and never pushed to `main`.
 
 ## Privacy
 

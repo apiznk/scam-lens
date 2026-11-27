@@ -3,7 +3,7 @@
 **Hackathon:** #BuildHybridAI 2026
 **Platform:** Web / Chrome
 
-> **Note:** the repository https://github.com/apiznk/scam-lens did not exist yet when this document was written. Create the repo first, push the code, and verify the link before submitting. The demo video link below is a placeholder until the video is recorded and uploaded to YouTube.
+> **Note:** the demo video link below is a placeholder until the video is recorded and uploaded to YouTube.
 
 ---
 
@@ -18,7 +18,7 @@ Check a suspicious message before you trust it. On your device first, in the clo
 ## Links
 
 - **Repository:** https://github.com/apiznk/scam-lens
-- **Live demo:** https://apiznk.github.io/scam-lens/
+- **Live demo:** https://scamlens-9dfe6.web.app/
 - **Demo video:** [TO BE FILLED AFTER YOUTUBE UPLOAD]
 
 ---
@@ -42,7 +42,7 @@ The check runs in two steps:
 1. **On-device (Gemini Nano).** The first step uses inference mode `ONLY_ON_DEVICE`, so Gemini Nano analyses the message entirely in Chrome on the user's device. Nothing leaves the device, and the result comes back in seconds.
 2. **Cloud (Gemini `gemini-2.5-flash`).** The second step uses inference mode `ONLY_IN_CLOUD`, running Gemini `gemini-2.5-flash` (pinned explicitly in `inCloudParams.model` in `src/ai.js`; the SDK v13 default is `gemini-3.5-flash-lite`) in the cloud for a deeper read. It runs automatically right after the on-device step, as part of the same **Check this message** click: that click is the moment the message leaves the device. There is no separate cloud button.
 
-Both steps return a structured JSON verdict — verdict (`safe` / `suspicious` / `scam`) and confidence (0–100) in both, plus `red_flags` from the on-device step and `reasons` + `what_to_do` from the cloud step — and each result is labelled in the UI with the engine that produced it ("On-device" or "Cloud"), so users always know which answer came from where. If on-device inference is unavailable, the app says so honestly in the UI instead of pretending, and the cloud step still runs. Hybrid `getGenerativeModel()` takes no top-level `model` string: the cloud model name lives in `inCloudParams.model`, and the on-device model has no name (Gemini Nano via Chrome's Prompt API). Firebase App Check is wired only for local dev builds (reCAPTCHA v3 provider, and only once a site key is pasted in); the production build currently runs without App Check.
+Both steps return a structured JSON verdict — verdict (`safe` / `suspicious` / `scam`) and confidence (0–100) in both, plus `red_flags` from the on-device step and `reasons` + `what_to_do` from the cloud step — and each result is labelled in the UI with the engine that produced it ("On-device" or "Cloud"), so users always know which answer came from where. If on-device inference is unavailable, the app says so honestly in the UI instead of pretending, and the cloud step still runs. Hybrid `getGenerativeModel()` takes no top-level `model` string: the cloud model name lives in `inCloudParams.model`, and the on-device model has no name (Gemini Nano via Chrome's Prompt API). Firebase App Check is initialised in every build via the ReCaptchaEnterpriseProvider, using the Fraud Defense score-based key registered for the web app (reCAPTCHA Classic is deprecated); the debug token flow applies to local dev builds only.
 
 ### Value proposition
 
@@ -54,7 +54,7 @@ Privacy first, cloud power when you need it. The fast check never exposes your m
 
 ScamLens is built with **Vite + vanilla JavaScript**, with no frontend framework and no backend server of our own. The UI and check flow live in `src/main.js`; all Firebase AI Logic calls live in `src/ai.js`; the Firebase web config lives in `src/firebase-config.js`.
 
-We started from the Firebase AI Logic hybrid inference pattern: one model configured `ONLY_ON_DEVICE` for Gemini Nano, one configured `ONLY_IN_CLOUD` for Gemini `gemini-2.5-flash` (pinned in `inCloudParams.model`), both asked for structured JSON output so the UI can render verdicts reliably. A single **Check this message** button runs both steps in sequence. Check history is stored in `localStorage`. The build is fully static (`npm run build` outputs to `dist/`), and `vite.config.js` sets `base: '/scam-lens/'` so the site deploys cleanly to GitHub Pages at https://apiznk.github.io/scam-lens/.
+We started from the Firebase AI Logic hybrid inference pattern: one model configured `ONLY_ON_DEVICE` for Gemini Nano, one configured `ONLY_IN_CLOUD` for Gemini `gemini-2.5-flash` (pinned in `inCloudParams.model`), both asked for structured JSON output so the UI can render verdicts reliably. A single **Check this message** button runs both steps in sequence. Check history is stored in `localStorage`. The build is fully static (`npm run build` outputs to `dist/`), and `vite.config.js` sets `base: '/'` so the site deploys at the root of Firebase Hosting at https://scamlens-9dfe6.web.app/.
 
 Everything runs on the free tier: the Firebase Spark plan, GitHub Pages hosting, and no paid services anywhere.
 

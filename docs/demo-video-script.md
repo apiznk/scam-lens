@@ -3,7 +3,7 @@
 **Hackathon:** #BuildHybridAI 2026
 **Maximum length:** 3 minutes (180 seconds)
 **Language:** English narration; the app demo includes one Indonesian-language example
-**Format:** Screen recording of the live app (https://apiznk.github.io/scam-lens/) with voiceover. No face cam needed.
+**Format:** Screen recording of the live app (https://scamlens-9dfe6.web.app/) with voiceover. No face cam needed.
 
 Total runtime of the shots below: **175 seconds**, leaving a 5-second buffer under the 3-minute limit.
 
@@ -15,7 +15,7 @@ Total runtime of the shots below: **175 seconds**, leaving a 5-second buffer und
 
 > "Every day, millions of people get messages like this: a job offer that sounds too good to be true, or a free crypto airdrop if you just connect your wallet first. Most people have no fast way to check them, and forwarding a private message to some random checker site is not safe either. So I built ScamLens for anyone who gets suspicious messages and wants a quick second opinion. It checks your message in two steps, both powered by Firebase AI Logic: first privately on your device with Gemini Nano, and then deeper in the cloud with Gemini, both on a single click."
 
-**On-screen action:** Quick cuts of three suspicious messages (a WhatsApp job offer, a Telegram airdrop pitch, an SMS parcel link), then the ScamLens homepage at https://apiznk.github.io/scam-lens/.
+**On-screen action:** Quick cuts of three suspicious messages (a WhatsApp job offer, a Telegram airdrop pitch, an SMS parcel link), then the ScamLens homepage at https://scamlens-9dfe6.web.app/.
 
 **Duration:** 30 seconds.
 
@@ -63,7 +63,7 @@ Total runtime of the shots below: **175 seconds**, leaving a 5-second buffer und
 
 > "ScamLens is for everyone who gets a suspicious message and wants a second opinion before replying, clicking, or sending money. The hybrid part matters: the fast, private check happens on your device, and the deeper check runs right after it, on the same click. That is privacy first, with cloud power when you need it. Try it at the link below. Built with Firebase AI Logic for the Build Hybrid AI hackathon."
 
-**On-screen action:** Back on the ScamLens homepage. The live site URL (https://apiznk.github.io/scam-lens/) and the repo link (https://github.com/apiznk/scam-lens) appear as on-screen text. End card with the ScamLens name.
+**On-screen action:** Back on the ScamLens homepage. The live site URL (https://scamlens-9dfe6.web.app/) and the repo link (https://github.com/apiznk/scam-lens) appear as on-screen text. End card with the ScamLens name.
 
 **Duration:** 30 seconds.
 

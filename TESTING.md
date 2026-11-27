@@ -34,8 +34,8 @@
 
 1. `npm run build`
 2. `npm run preview -- --port 4173` (or `npm run dev`)
-3. Open http://localhost:4173/scam-lens/ (preview serves the built app;
-   dev serves at http://localhost:5173/scam-lens/)
+3. Open http://localhost:4173/ (preview serves the built app;
+   dev serves at http://localhost:5173/)
 4. Expect:
    - [ ] Page loads, no console errors, no crash.
    - [ ] Yellow banner visible: "Firebase is not configured yet."
@@ -95,6 +95,7 @@ checklist below is done on a real device.
 - On-device availability depends on the browser/device (Chrome 139+
   desktop + Gemini Nano download). The app reports unavailability
   honestly instead of faking a result.
-- App Check: the debug provider is enabled ONLY in dev builds
-  (`import.meta.env.DEV` guard in `src/ai.js`) and only takes effect
-  once a reCAPTCHA site key is added. No debug token is committed.
+- App Check: initialised in every build with `ReCaptchaEnterpriseProvider`
+  (Fraud Defense score-based key, since reCAPTCHA Classic is deprecated).
+  The debug token is auto-generated ONLY in dev builds
+  (`import.meta.env.DEV` guard in `src/ai.js`). No debug token is committed.

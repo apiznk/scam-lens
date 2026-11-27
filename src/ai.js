@@ -60,35 +60,38 @@ export function isFirebaseConfigured() {
 let app = null;
 let ai = null;
 
-// TODO: Paste your reCAPTCHA site key here when you enable App Check
-// enforcement in the Firebase console. Until then App Check stays off and
-// the app works without it. Never paste a real key into a committed file
-// without checking .gitignore, and never commit a debug token.
-const RECAPTCHA_SITE_KEY = '';
+// reCAPTCHA site key for App Check. Registered 26 Nov 2026 as a
+// score-based key in Google Cloud Fraud Defense ("scamlens-web").
+// reCAPTCHA Classic is deprecated, so the Enterprise provider below is
+// required; ReCaptchaV3Provider does NOT match this key. A site key is a
+// public identifier, not a secret. Never commit a debug token.
+const RECAPTCHA_SITE_KEY = '6Lc2wjMuAAAAAGdcWqPgiS1xr0xL7m8N1hbtpRl0';
 
 function maybeInitAppCheck(firebaseApp) {
-  // App Check debug provider is enabled ONLY for local dev builds.
-  // In production builds this whole block is skipped, so no debug token
-  // can ever leak into a shipped build.
-  if (!import.meta.env.DEV) return;
+  // App Check is ENFORCED for AI Logic in the Firebase console, so it must
+  // be initialised in every build, dev and production alike. Without it,
+  // AI calls are rejected. The debug token is enabled ONLY for local dev
+  // builds, so no debug token can ever leak into a shipped build.
   if (!RECAPTCHA_SITE_KEY) {
     console.info(
-      '[ScamLens] App Check not configured (no reCAPTCHA site key); running without App Check in dev.',
+      '[ScamLens] App Check not configured (no reCAPTCHA site key); running without App Check.',
     );
     return;
   }
   // Dynamic import keeps firebase/app-check out of the bundle until needed.
   import('firebase/app-check')
-    .then(({ initializeAppCheck, ReCaptchaV3Provider }) => {
+    .then(({ initializeAppCheck, ReCaptchaEnterpriseProvider }) => {
       // `true` makes the SDK auto-generate a debug token for this browser
       // and print it in the console. That token is for local dev only:
       // never commit it, never paste it into a production build.
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      if (import.meta.env.DEV) {
+        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      }
       initializeAppCheck(firebaseApp, {
-        provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
+        provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
         isTokenAutoRefreshEnabled: true,
       });
-      console.info('[ScamLens] App Check initialised (debug provider, dev only).');
+      console.info('[ScamLens] App Check initialised.');
     })
     .catch((err) => {
       console.warn('[ScamLens] App Check init failed, continuing without it:', err);

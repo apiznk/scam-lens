@@ -4,12 +4,12 @@
 
 ScamLens is a web app for the **#BuildHybridAI 2026** hackathon. It checks whether a message looks like a scam or a hoax, using **Firebase AI Logic** hybrid inference: a fast, private first pass on-device with **Gemini Nano**, and a deeper second pass in the cloud with **Gemini `gemini-2.5-flash`**, run automatically right after the on-device step on the same click.
 
-- **Live demo:** https://apiznk.github.io/scam-lens/
+- **Live demo:** https://scamlens-9dfe6.web.app/
 - **Repository:** https://github.com/apiznk/scam-lens
 - **License:** Apache License 2.0 (see [LICENSE](LICENSE))
 - **Cost:** free tier only. No paid services, no spending.
 
-> **Status note:** the Firebase web config in `src/firebase-config.js` is still a placeholder (every value is a `TODO`). It will be filled in with the config of a Firebase project created by the project owner. Until then, no check can run at all: every inference goes through Firebase AI Logic, so the app needs a real Firebase project config to initialise it, even for the on-device step. The on-device step still runs locally on the device (the message content never leaves the device), but it cannot start without that config. See [Firebase setup](#firebase-setup).
+> **Status note:** the Firebase web config in `src/firebase-config.js` is filled in with the config of project **scamlens** (`scamlens-9dfe6`, Spark plan, AI Logic enabled with the Gemini Developer API, App Check enforced). The live demo above runs against that project. See [Firebase setup](#firebase-setup).
 
 ## The problem
 
@@ -39,7 +39,7 @@ Anyone who gets suspicious messages and wants a quick second opinion before repl
 - Works in English and Indonesian, with ready-made sample messages for both languages (scam and legit examples).
 - Check history saved in `localStorage`, so you can review past checks without an account.
 - No account, no sign-in, no server of our own. Your messages are never stored anywhere except your own browser's history.
-- Static build, deployable to GitHub Pages.
+- Static build, deployed to Firebase Hosting.
 
 ## Quick start
 
@@ -56,7 +56,7 @@ npm install
 npm run dev
 ```
 
-Then open the local URL shown in the terminal (usually `http://localhost:5173/scam-lens/`, because `vite.config.js` sets `base: '/scam-lens/'`).
+Then open the local URL shown in the terminal (usually `http://localhost:5173/`, because `vite.config.js` sets `base: '/'` for Firebase Hosting).
 
 ### Build and preview
 
@@ -67,32 +67,27 @@ npm run preview  # serves the production build locally
 
 ## Firebase setup
 
-The app needs a Firebase project for both steps: Firebase AI Logic must be initialised with a real project config before any inference can run, including the on-device step. The on-device step still runs locally on the device (the message content never leaves the device), but it cannot start without that config. App Check is optional in the current code (see step 4).
+The app is wired to the Firebase project **scamlens** (`scamlens-9dfe6`, free Spark plan, Google Analytics off), created 26 Nov 2026. Both inference steps need that project: Firebase AI Logic must be initialised with the project's real config before any inference can run, including the on-device step. The on-device step still runs locally on the device (the message content never leaves the device), but it cannot start without that config. App Check is **enforced** for AI Logic (see step 4).
 
-### 1. Create a Firebase project
+### 1. Firebase project
 
-1. Go to the [Firebase console](https://console.firebase.google.com/) and create a new project (free Spark plan is enough).
-2. In the project, add a **Web app** (Project settings → Your apps → Web).
-3. Copy the web app config object Firebase shows you.
+Project **scamlens** (`scamlens-9dfe6`), with a registered **Web app** (`scamlens-web`). Free Spark plan, no billing, Google Analytics off.
 
-### 2. Fill in the config
+### 2. Config
 
-Open `src/firebase-config.js` and replace **every** `TODO` value with the values from your Firebase web app config (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`). Do not leave any `TODO` in place.
+`src/firebase-config.js` already holds the web app config (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`) from Firebase console → Project settings → Your apps → Web app. If the project ever changes, replace those six values with the new ones.
 
-### 3. Enable Firebase AI Logic
+### 3. Firebase AI Logic
 
-In the Firebase console, enable **Firebase AI Logic** for the project (the Gemini API backing it is billed on the free tier; stay within the free quota). No other Firebase products are required.
+Enabled in the Firebase console with the **Gemini Developer API** backend (free, no billing). No other Firebase products are required.
 
-### 4. App Check (optional, dev only in the current code)
+### 4. App Check (enforced)
 
-App Check is **not** initialised by the current code in production builds: `src/ai.js` only initialises it in local dev builds (`import.meta.env.DEV`), and only after a reCAPTCHA v3 site key is pasted into `RECAPTCHA_SITE_KEY` in that file. Until then the app runs without App Check. To enable it for local development:
+App Check is enforced for AI Logic, and `src/ai.js` initialises it in every build (dev and production) with the **ReCaptchaEnterpriseProvider**. reCAPTCHA Classic is deprecated, so the registered key is a score-based key in Google Cloud Fraud Defense ("scamlens-web"), the current equivalent of reCAPTCHA v3; its site key is pasted into `RECAPTCHA_SITE_KEY` in `src/ai.js`. The key allows `localhost`, `scamlens-9dfe6.web.app`, and `scamlens-9dfe6.firebaseapp.com`.
 
-- In the Firebase console, go to **Build → App Check** and register the web app with the reCAPTCHA v3 provider, then paste the site key into `RECAPTCHA_SITE_KEY` in `src/ai.js`.
-- Run the app locally (`npm run dev`). On first load, Firebase prints an App Check debug token in the browser console; copy it into the Firebase console under **App Check → Manage debug tokens**.
-- Reload the app; local development requests are now accepted.
-- Production (GitHub Pages) currently runs without App Check; wiring the reCAPTCHA v3 provider into the production build is a follow-up, not part of this release.
+For local development, run the app locally (`npm run dev`). On first load, Firebase prints an App Check debug token in the browser console; copy it into the Firebase console under **App Check → Manage debug tokens**. The debug token is generated only in dev builds (`import.meta.env.DEV`); production builds never set one.
 
-> **⚠️ Never commit secrets.** Never commit an App Check debug token, a service-account key, or any `.env` file to a public repo. Debug tokens are for your own machine only; anyone who has one can impersonate your app. If a token ever leaks, delete it in the Firebase console immediately and generate a new one.
+> **⚠️ Never commit secrets.** Never commit an App Check debug token, a service-account key, or any `.env` file to a public repo. Debug tokens are for your own machine only; anyone who has one can impersonate your app. If a token ever leaks, delete it in the Firebase console immediately and generate a new one. (The web `apiKey` in `src/firebase-config.js` is a public client identifier, not a secret; abuse protection comes from App Check.)
 
 ## How Firebase AI Logic is used
 
@@ -115,8 +110,8 @@ scam-lens/
 ├── src/
 │   ├── main.js                # UI logic and check flow
 │   ├── ai.js                  # All Firebase AI Logic calls
-│   └── firebase-config.js     # Firebase web config (TODO placeholders)
-├── vite.config.js             # Vite config, base '/scam-lens/' for GitHub Pages
+│   └── firebase-config.js     # Firebase web config (project scamlens)
+├── vite.config.js             # Vite config, base '/' for Firebase Hosting
 └── dist/                      # Static build output (generated by npm run build)
 ```
 
@@ -161,11 +156,13 @@ The app ships with ready-made examples so anyone can try it in seconds, in both 
 
 ## Deployment
 
-The app is deployed to **GitHub Pages** from this same repository. `vite.config.js` sets `base: '/scam-lens/'` so the built site works under the repository path.
+The app is deployed to **Firebase Hosting** from this same repository. `vite.config.js` sets `base: '/'` so the built site works at the domain root.
 
-Live site: https://apiznk.github.io/scam-lens/
+Live site: https://scamlens-9dfe6.web.app/
 
-To deploy: run `npm run build`, then publish the contents of `dist/` to the `gh-pages` branch (a separate branch holding only the build output, plus an empty `.nojekyll` file). GitHub Pages serves that branch at the URL above. The `main` branch holds the source only; `dist/` is git-ignored and never pushed to `main`.
+To deploy: run `npm run build`, then `firebase deploy --only hosting` (project `scamlens-9dfe6`, set in `.firebaserc`). The `main` branch holds the source only; `dist/` is git-ignored and never committed.
+
+Hosting moved here from GitHub Pages on 27 Nov 2026. The old GitHub Pages site (https://apiznk.github.io/scam-lens/) still serves the previous build, which shows the "Firebase is not configured" banner; it is retired and no longer updated.
 
 ## Privacy
 

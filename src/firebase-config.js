@@ -1,25 +1,21 @@
 // ScamLens — Firebase web config.
 //
-// TODO: Paste your Firebase project's web app config here.
+// Project: scamlens (scamlens-9dfe6), created 26 Nov 2026 in the
+// faizal abi account, Spark plan (free), Google Analytics off.
 //   Firebase console > Project settings > Your apps > Web app > SDK setup
 //   and configuration (the `firebaseConfig` object).
 //
-// Every field below is a placeholder on purpose. The app detects the
-// placeholders, shows a setup banner in the UI, and refuses to run any
-// inference until real values are pasted in. Do NOT commit real keys,
-// service-account files, or .env files to the repo.
+// These values are client-side identifiers for a web app: Firebase's own
+// docs treat the web apiKey as public (it ships inside the deployed
+// bundle, and the app's abuse protection is App Check + the project's
+// API restrictions, not this key). Never commit a service-account key,
+// an App Check debug token, or any `.env` file to the repo.
 
 export const firebaseConfig = {
-  // TODO: Paste your Firebase web API key, e.g. "AIzaSy..."
-  apiKey: 'TODO-PASTE-FIREBASE-WEB-API-KEY',
-  // TODO: Paste your auth domain, e.g. "your-project.firebaseapp.com"
-  authDomain: 'TODO-PASTE-FIREBASE-AUTH-DOMAIN',
-  // TODO: Paste your Firebase project ID, e.g. "your-project"
-  projectId: 'TODO-PASTE-FIREBASE-PROJECT-ID',
-  // TODO: Paste your storage bucket, e.g. "your-project.firebasestorage.app"
-  storageBucket: 'TODO-PASTE-FIREBASE-STORAGE-BUCKET',
-  // TODO: Paste your messaging sender ID, e.g. "123456789012"
-  messagingSenderId: 'TODO-PASTE-FIREBASE-MESSAGING-SENDER-ID',
-  // TODO: Paste your Firebase web app ID, e.g. "1:123456789012:web:abcdef..."
-  appId: 'TODO-PASTE-FIREBASE-APP-ID',
+  apiKey: 'AIzaSyAj3jcIi_A7B4nZwlgtWY-8DBRFd7PDreQ',
+  authDomain: 'scamlens-9dfe6.firebaseapp.com',
+  projectId: 'scamlens-9dfe6',
+  storageBucket: 'scamlens-9dfe6.firebasestorage.app',
+  messagingSenderId: '970918115707',
+  appId: '1:970918115707:web:0925d9c11c0c768e0825de',
 };

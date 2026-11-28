@@ -62,6 +62,7 @@ export function isFirebaseConfigured() {
 
 let app = null;
 let ai = null;
+let appCheckInitPromise = null;
 
 // TEMPORARY DIAGNOSTIC (28 Nov 2026, App Check 401 investigation):
 // tracks whether App Check initialised and whether a token could be
@@ -86,19 +87,24 @@ export function getAppCheckDiagnostics() {
 // public identifier, not a secret. Never commit a debug token.
 const RECAPTCHA_SITE_KEY = '6Lc2wjMuAAAAAGdcWqPgiS1xr0xL7m8N1hbtpRl0';
 
-function maybeInitAppCheck(firebaseApp) {
-  // App Check is ENFORCED for AI Logic in the Firebase console, so it must
-  // be initialised in every build, dev and production alike. Without it,
-  // AI calls are rejected. The debug token is enabled ONLY for local dev
-  // builds, so no debug token can ever leak into a shipped build.
+function initAppCheck(firebaseApp) {
+  // Memoised: App Check is initialised once, and getAIInstance() awaits
+  // this before creating the AI instance. Firebase requires App Check to
+  // be initialised BEFORE any other Firebase service, so the AI instance
+  // picks up a working App Check provider. Previously this ran
+  // fire-and-forget while getAI() ran immediately, so the AI instance
+  // could capture a not-yet-registered provider and cloud calls went out
+  // without a token, which the backend rejected with 401 even though a
+  // token could be fetched fine (proven by the probe below).
+  if (appCheckInitPromise) return appCheckInitPromise;
   if (!RECAPTCHA_SITE_KEY) {
     console.info(
       '[ScamLens] App Check not configured (no reCAPTCHA site key); running without App Check.',
     );
-    return;
+    appCheckInitPromise = Promise.resolve();
+    return appCheckInitPromise;
   }
-  // Dynamic import keeps firebase/app-check out of the bundle until needed.
-  import('firebase/app-check')
+  appCheckInitPromise = import('firebase/app-check')
     .then(({ initializeAppCheck, ReCaptchaEnterpriseProvider, getToken }) => {
       // `true` makes the SDK auto-generate a debug token for this browser
       // and print it in the console. That token is for local dev only:
@@ -130,9 +136,10 @@ function maybeInitAppCheck(firebaseApp) {
       }
       console.warn('[ScamLens] App Check problem:', err);
     });
+  return appCheckInitPromise;
 }
 
-export function getAIInstance() {
+export async function getAIInstance() {
   if (!isFirebaseConfigured()) {
     throw new Error(
       'Firebase is not configured yet. Fill in src/firebase-config.js with your Firebase web config first.',
@@ -140,7 +147,11 @@ export function getAIInstance() {
   }
   if (!ai) {
     app = initializeApp(firebaseConfig);
-    maybeInitAppCheck(app);
+    try {
+      await initAppCheck(app);
+    } catch (err) {
+      console.warn('[ScamLens] App Check init failed, continuing without it:', err);
+    }
     ai = getAI(app, { backend: new GoogleAIBackend() });
   }
   return ai;
@@ -244,7 +255,7 @@ Message:
 // ---------------------------------------------------------------------------
 
 export async function checkOnDevice(message, onProgress) {
-  const aiInstance = getAIInstance();
+  const aiInstance = await getAIInstance();
   const model = getGenerativeModel(aiInstance, {
     mode: InferenceMode.ONLY_ON_DEVICE,
     onDeviceParams: {
@@ -271,7 +282,7 @@ export async function checkOnDevice(message, onProgress) {
 // ---------------------------------------------------------------------------
 
 export async function checkInCloud(message) {
-  const aiInstance = getAIInstance();
+  const aiInstance = await getAIInstance();
   const model = getGenerativeModel(aiInstance, {
     mode: InferenceMode.ONLY_IN_CLOUD,
     inCloudParams: {

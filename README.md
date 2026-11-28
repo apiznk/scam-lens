@@ -2,7 +2,7 @@
 
 **Check a suspicious message before you trust it. On your device first, in the cloud second.**
 
-ScamLens is a web app for the **#BuildHybridAI 2026** hackathon. It checks whether a message looks like a scam or a hoax, using **Firebase AI Logic** hybrid inference: a fast, private first pass on-device with **Gemini Nano**, and a deeper second pass in the cloud with **Gemini `gemini-2.5-flash`**, run automatically right after the on-device step on the same click.
+ScamLens is a web app for the **#BuildHybridAI 2026** hackathon. It checks whether a message looks like a scam or a hoax, using **Firebase AI Logic** hybrid inference: a fast, private first pass on-device with **Gemini Nano**, and a deeper second pass in the cloud with **Gemini `gemini-3.5-flash-lite`**, run automatically right after the on-device step on the same click.
 
 - **Live demo:** https://scamlens-9dfe6.web.app/
 - **Repository:** https://github.com/apiznk/scam-lens
@@ -24,7 +24,7 @@ Scam and hoax messages reach everyone: fake job offers on WhatsApp, "investment"
 ScamLens checks a message in **two steps, privacy first**:
 
 1. **Step 1 — On-device (Gemini Nano).** The message is analysed entirely in your browser by Gemini Nano, running on your device through Firebase AI Logic. Nothing leaves your device. You get a fast first verdict: `safe`, `suspicious`, or `scam`, with a confidence score (0–100) and a list of red flags.
-2. **Step 2 — Cloud (Gemini `gemini-2.5-flash`).** Right after the on-device step, the same click sends the message to the cloud Gemini model, also through Firebase AI Logic, for a deeper read with reasons and concrete next steps. This step is automatic, not a separate opt-in: tapping **Check this message** runs both steps in sequence, and the message leaves the device for the cloud step. If on-device inference is unavailable, the cloud step still runs.
+2. **Step 2 — Cloud (Gemini `gemini-3.5-flash-lite`).** Right after the on-device step, the same click sends the message to the cloud Gemini model, also through Firebase AI Logic, for a deeper read with reasons and concrete next steps. This step is automatic, not a separate opt-in: tapping **Check this message** runs both steps in sequence, and the message leaves the device for the cloud step. If on-device inference is unavailable, the cloud step still runs.
 
 Each step shows its own label in the UI ("On-device" or "Cloud"), so you always know which engine produced which verdict. If on-device inference is not available on your machine, the app says so honestly in the UI instead of pretending, and you can still continue to the cloud step.
 
@@ -34,7 +34,7 @@ Anyone who gets suspicious messages and wants a quick second opinion before repl
 
 ## Features
 
-- Two-step hybrid check: on-device Gemini Nano first, cloud Gemini `gemini-2.5-flash` second. Both steps run on one click of the single **Check this message** button.
+- Two-step hybrid check: on-device Gemini Nano first, cloud Gemini `gemini-3.5-flash-lite` second. Both steps run on one click of the single **Check this message** button.
 - Structured JSON output from both steps: a verdict (`safe` / `suspicious` / `scam`) and a confidence score (0–100), plus red flags from the on-device step and reasons plus what-to-do steps from the cloud step.
 - Works in English and Indonesian, with ready-made sample messages for both languages (scam and legit examples).
 - Check history saved in `localStorage`, so you can review past checks without an account.
@@ -95,7 +95,7 @@ All model inference in ScamLens goes through **Firebase AI Logic**. There are no
 
 - The app initialises Firebase AI Logic with `getAI()` using the `GoogleAIBackend`.
 - **Step 1 (on-device):** a model is created with inference mode `ONLY_ON_DEVICE`, which runs **Gemini Nano** locally in Chrome. The message never leaves the device. The on-device model has no name: it is Gemini Nano via Chrome's Prompt API.
-- **Step 2 (cloud):** a model is created with inference mode `ONLY_IN_CLOUD`, which runs **Gemini `gemini-2.5-flash`** in the cloud. The model name is pinned explicitly in `inCloudParams.model` in `src/ai.js` (the SDK v13 default is `gemini-3.5-flash-lite`). This step runs automatically right after the on-device step, as part of the same **Check this message** click.
+- **Step 2 (cloud):** a model is created with inference mode `ONLY_IN_CLOUD`, which runs **Gemini `gemini-3.5-flash-lite`** in the cloud. The model name is pinned explicitly in `inCloudParams.model` in `src/ai.js` (the SDK v13 default is `gemini-3.5-flash-lite`). This step runs automatically right after the on-device step, as part of the same **Check this message** click.
 - Hybrid `getGenerativeModel()` takes no top-level `model` string: the cloud model name lives in `inCloudParams.model`, and the on-device model has no name (see above). This follows the installed SDK (firebase 13.4.0, `@firebase/ai` 3.1.0).
 - Both steps ask the model for a **structured JSON** verdict: verdict (`safe` / `suspicious` / `scam`) and confidence (0–100) in both, plus `red_flags` from the on-device step and `reasons` + `what_to_do` from the cloud step, so the UI can render the result reliably instead of parsing free-form text.
 - If Gemini Nano is unavailable (unsupported Chrome version, flag off, or model not downloaded yet), the UI shows that clearly and the user can still use the cloud step.
@@ -119,7 +119,7 @@ scam-lens/
 
 1. The user pastes a message (or taps a sample message) and taps **Check this message** — the app's single Check button.
 2. `src/ai.js` runs the on-device Gemini Nano model (`ONLY_ON_DEVICE`) and returns a structured JSON verdict (`verdict`, `confidence` 0–100, `red_flags`), shown with an "On-device" label. If Gemini Nano is unavailable in the browser, the card says so honestly and the flow continues to the cloud step.
-3. The same click then runs the cloud Gemini model (`gemini-2.5-flash`, `ONLY_IN_CLOUD`) and returns a structured JSON verdict (`verdict`, `confidence` 0–100, `reasons`, `what_to_do`), shown with a "Cloud" label. The message leaves the device for this step.
+3. The same click then runs the cloud Gemini model (`gemini-3.5-flash-lite`, `ONLY_IN_CLOUD`) and returns a structured JSON verdict (`verdict`, `confidence` 0–100, `reasons`, `what_to_do`), shown with a "Cloud" label. The message leaves the device for this step.
 4. Each completed check is saved to `localStorage` history, which the user can browse and clear.
 
 ### Example output

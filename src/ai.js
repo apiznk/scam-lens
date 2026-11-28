@@ -17,8 +17,11 @@
 //     name lives in inCloudParams.model, the on-device model has no name
 //     (it is Gemini Nano via Chrome's Prompt API).
 //   - Default cloud model in SDK v13 is gemini-3.5-flash-lite; we pin
-//     gemini-2.5-flash explicitly below. If that name ever stops resolving,
-//     delete the `model` line to fall back to the SDK default.
+//     gemini-3.5-flash-lite explicitly below. It previously pinned
+//     gemini-2.5-flash, but Google deprecated that model on 2 Nov 2026
+//     (retired 1 Dec 2026, requests auto-routed to gemini-3.5-flash-lite).
+//     If this name ever stops resolving, delete the `model` line in
+//     `inCloudParams` to fall back to the SDK default.
 //   - initializeDeviceModel() must run after a user gesture (the Check
 //     button click) and before generateContent on the on-device model.
 //   - result.response.inferenceSource is 'on_device' | 'in_cloud'
@@ -36,7 +39,7 @@ import { firebaseConfig } from './firebase-config.js';
 
 // Cloud-hosted Gemini model for the ONLY_IN_CLOUD step.
 // Free tier on the Gemini Developer API, no billing required.
-export const CLOUD_MODEL = 'gemini-2.5-flash';
+export const CLOUD_MODEL = 'gemini-3.5-flash-lite';
 
 // ---------------------------------------------------------------------------
 // Config check

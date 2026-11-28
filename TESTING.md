@@ -22,8 +22,10 @@
     `inCloudParams.model`; the on-device model has no name (it is Gemini
     Nano via Chrome's Prompt API). The code follows the SDK.
   - Default cloud model in SDK v13 is `gemini-3.5-flash-lite`. This app
-    pins `gemini-2.5-flash` explicitly in `src/ai.js` (`CLOUD_MODEL`). If
-    that name ever stops resolving, delete the `model:` line in
+    pins `gemini-3.5-flash-lite` explicitly in `src/ai.js` (`CLOUD_MODEL`).
+    It previously pinned `gemini-2.5-flash`, deprecated by Google on
+    2 Nov 2026 (retired 1 Dec 2026, auto-routed to `gemini-3.5-flash-lite`).
+    If that name ever stops resolving, delete the `model:` line in
     `inCloudParams` to fall back to the SDK default.
 - [x] `npm run build` passes (static output in `dist/`).
 - [x] Smoke test with placeholder config (see below): the app loads, shows

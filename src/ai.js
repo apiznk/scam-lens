@@ -63,6 +63,22 @@ export function isFirebaseConfigured() {
 let app = null;
 let ai = null;
 
+// TEMPORARY DIAGNOSTIC (28 Nov 2026, App Check 401 investigation):
+// tracks whether App Check initialised and whether a token could be
+// fetched, so the live page can show it in the UI. Remove before
+// submission once the 401 is fixed.
+let appCheckInstance = null;
+let appCheckInitError = null;
+let appCheckTokenProbe = null; // { ok: true } | { ok: false, error: string } | null (pending)
+
+export function getAppCheckDiagnostics() {
+  return {
+    initialised: !!appCheckInstance,
+    initError: appCheckInitError,
+    tokenProbe: appCheckTokenProbe,
+  };
+}
+
 // reCAPTCHA site key for App Check. Registered 26 Nov 2026 as a
 // score-based key in Google Cloud Fraud Defense ("scamlens-web").
 // reCAPTCHA Classic is deprecated, so the Enterprise provider below is
@@ -83,21 +99,36 @@ function maybeInitAppCheck(firebaseApp) {
   }
   // Dynamic import keeps firebase/app-check out of the bundle until needed.
   import('firebase/app-check')
-    .then(({ initializeAppCheck, ReCaptchaEnterpriseProvider }) => {
+    .then(({ initializeAppCheck, ReCaptchaEnterpriseProvider, getToken }) => {
       // `true` makes the SDK auto-generate a debug token for this browser
       // and print it in the console. That token is for local dev only:
       // never commit it, never paste it into a production build.
       if (import.meta.env.DEV) {
         self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
       }
-      initializeAppCheck(firebaseApp, {
+      appCheckInstance = initializeAppCheck(firebaseApp, {
         provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
         isTokenAutoRefreshEnabled: true,
       });
       console.info('[ScamLens] App Check initialised.');
+      // Probe a token right away: if the exchange fails, the error
+      // surfaces here (and in the UI diagnostics) instead of hiding
+      // behind the cloud call's generic 401.
+      return getToken(appCheckInstance, false);
+    })
+    .then((tokenResult) => {
+      appCheckTokenProbe =
+        tokenResult && tokenResult.token
+          ? { ok: true }
+          : { ok: false, error: 'empty token' };
     })
     .catch((err) => {
-      console.warn('[ScamLens] App Check init failed, continuing without it:', err);
+      if (!appCheckInstance) {
+        appCheckInitError = err?.message || String(err);
+      } else if (!appCheckTokenProbe) {
+        appCheckTokenProbe = { ok: false, error: err?.message || String(err) };
+      }
+      console.warn('[ScamLens] App Check problem:', err);
     });
 }
 

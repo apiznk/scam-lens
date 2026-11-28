@@ -1,7 +1,7 @@
 // ScamLens UI — vanilla JS. All inference lives in ./ai.js and goes
 // through Firebase AI Logic only. This file never calls a model API.
 
-import { isFirebaseConfigured, checkOnDevice, checkInCloud, CLOUD_MODEL } from './ai.js';
+import { isFirebaseConfigured, checkOnDevice, checkInCloud, CLOUD_MODEL, getAppCheckDiagnostics } from './ai.js';
 
 const HISTORY_KEY = 'scamlens-history-v1';
 const MAX_HISTORY = 20;
@@ -184,6 +184,27 @@ function resetResultCard(card) {
   setStatus(card, 'idle', 'idle');
 }
 
+// TEMPORARY DIAGNOSTIC (28 Nov 2026, App Check 401 investigation):
+// shows the App Check init + token-probe state in the cloud card so a
+// test run reveals where the token breaks without opening DevTools.
+// Remove before submission once the 401 is fixed.
+function renderAppCheckDiag() {
+  const el = $('appcheck-diag');
+  if (!el) return;
+  const d = getAppCheckDiagnostics();
+  let text;
+  if (!d.initialised) {
+    text = `App Check: not initialised${d.initError ? ` (${d.initError})` : ''}`;
+  } else if (!d.tokenProbe) {
+    text = 'App Check: initialised, token check pending…';
+  } else if (d.tokenProbe.ok) {
+    text = 'App Check: initialised, token ok';
+  } else {
+    text = `App Check: initialised, token FAILED: ${d.tokenProbe.error}`;
+  }
+  el.textContent = text;
+}
+
 // ---------------------------------------------------------------------------
 // Check flow
 // ---------------------------------------------------------------------------
@@ -254,6 +275,7 @@ async function handleCheck() {
     showError(cloudCard, `Cloud check failed: ${err?.message || 'unknown error'}`);
     console.warn('[ScamLens] Cloud step failed:', err);
   }
+  renderAppCheckDiag();
 
   saveHistoryEntry({
     message,

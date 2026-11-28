@@ -7,3 +7,4 @@ dist
 *.p12
 service-account*.json
 *-service-account.json
+.firebase/
